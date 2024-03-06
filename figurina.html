@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body onload="checkLogin()" class="text-white"> 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>...</ul>-->
+            </div>
+        </div>
+    </nav>    
+    <div class="container-sm ">
+        <div class="row justify-content-md-center">
+
+            <div id="alert" class="alert alert-warning" role="alert" style="display: none;">
+                <!--testo in base all'errore-->
+            </div>
+            <!--DATI FIGURINA-->
+            <div class="card text-bg-dark bg-opacity-75"> 
+                <div class="card-header" >
+                    <h3 id="welcome">Informazioni figurina</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4" id="figurina"> </div>
+                        <div class="col-8" id="info"> </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!--Events, serie, comics-->
+            <div class="card text-bg-dark bg-opacity-75 " >
+                <div class="card-header">
+                    <h3>Eventi, serie, e comics</h3>
+                </div>
+                <div class="card-body">
+                    <select class="form-select" onchange="showSection(getUrlParams())" id="selezioneSection" aria-label="Default select example">
+                        <option value="events">Eventi</option>
+                        <option value="series">Serie</option>
+                        <option value="comics">Comics</option>
+                    </select>
+                    <hr>
+
+                    <section id="section_events"> <!--EVENTI-->
+                        <p>Eventi</p>
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Immagine</th>
+                                    <th scope="col">Titolo</th>
+                                    <th scope="col">Descrizione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="t_events" style="overflow-wrap: break-word;">
+                                <!--tr>
+                                    <th scope="row">1</th>
+                                    <td>Mark</td>
+                                    <td>Ruffalo</td>
+                                    <td>Hulk</td>
+                                </tr-->  
+                            </tbody>
+                        </table>
+                        <button class="btn btn-success" onclick="carica_altro()">Carica</button>
+                    </section>
+
+                    <section id="section_series" style="display: none;"> <!--SERIE-->
+                        <p>Serie</p>
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Immagine</th>
+                                    <th scope="col">Titolo</th>
+                                    <th scope="col">Descrizione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="t_series" style="overflow-wrap: break-word;">
+                                
+                            </tbody>
+                        </table>
+                        <button class="btn btn-warning" onclick="carica_altro()">Carica</button>
+                    </section>
+
+                    <section id="section_comics" style="display: none;"> <!--COMICS-->
+                        <p>Comics</p>
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Immagine</th>
+                                    <th scope="col">Titolo</th>
+                                    <th scope="col">Descrizione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="t_comics" style="overflow-wrap: break-word;">
+                                <img src="" style="position: relative; max-width: inherit;" height="100%" alt="">
+                            </tbody>
+                        </table>
+                        <button class="btn btn-info" onclick="carica_altro()">Carica</button>
+                    </section>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+    start()
+    
+    function checkLogin(){
+        if(window.localStorage.getItem('sessione') == null){
+            removeAlert()
+            addAlert("Devi Registrati o Accedere per visualizzare il profilo utente!")
+        } else {
+            var welcome = document.getElementById('welcome') 
+            welcome.innerHTML = JSON.parse(window.localStorage.getItem('sessione')) + " - " + welcome.innerHTML
+            info_figurina()
+            info_comics(getUrlParams(), "events", 0)
+        }
+    }
+    function getUrlParams() {
+        var query = window.location.search;
+        var urlParams = new URLSearchParams(query); 
+        return urlParams.get('id');
+    }
+
+    function info_figurina(){
+        var id = getUrlParams();
+
+        getFromMarvel("public/characters/" + id).then(risultati =>{
+            var element = risultati.data.results[0]
+            var info = document.getElementById('info')
+            var figurina = document.getElementById('figurina')
+            
+            if(element.description == "")
+                element.description = "Questo personaggio al momento non ha descrizione."
+
+            //restituire: nome, id, descrizione, immagine, appare in: series.available, events, comics
+            figurina.innerHTML = figurina.innerHTML + "<img style='border-radius:5px; max-width: inherit' src='"+ element.thumbnail.path + "." + element.thumbnail.extension + "' title='" + element.name + "'>";
+            info.innerHTML = info.innerHTML + "<h1>"+ element.name+"</h1><p>ID: "+ element.id  +"</p><hr><p class='card-text'>Descrizione: " + element.description + "</p><hr><p>Appare in: </p><ul><li>" + element.series.available + " series</li><li>"+ element.events.available +" events</li><li>"+ element.comics.available +" comics</li></ul>"
+            
+            var utenti = JSON.parse(localStorage.getItem('utenti_marvel'))
+            var index = utenti.findIndex(u => u.username == JSON.parse(window.localStorage.getItem('sessione')))
+
+            utenti[index].album.forEach(figurina => {
+                if(figurina.id == id){
+                    info.innerHTML += "<hr><p>Figurine in tuo possedute: " + figurina.count + "</p>"
+                }
+            });
+        })
+    }
+
+    function showSection(id_figurina){
+        var selezione = document.getElementById('selezioneSection').value
+        var section = document.getElementById('section_' + selezione)
+        var sections = document.getElementsByTagName('section')
+
+        for (var i = 0; i < sections.length; i++){
+            sections[i].style.display = "none"
+        }
+        section.style.display = "block"
+
+        //selezione tabella e azzeramento 
+        var table = document.getElementById('t_' + selezione)
+        table.innerHTML = ""
+        numero_risultati = 0
+        info_comics(id_figurina, selezione, 0)
+    }
+
+    function info_comics(id_figurina, selection, offset) {
+        getFromMarvel("public/characters/" + id_figurina + "/" + selection, "offset=" + offset).then(risultati =>{
+            var items = risultati.data.results
+            if(items.length != 0){
+                var table = document.getElementById('t_' + selection)
+
+                items.forEach((element, index) => {
+                    if(element.description == null || element.description == "")
+                        element.description = "Questo/a " +selection + " al momento non ha descrizione."
+                    table.innerHTML += 
+                    "<tr><th scope='row'>" + (index+1+offset) + "</th><td><img style='border-radius:5px; position: relative' class='card-img-top posizione_img' height='100%' src='"+ element.thumbnail.path + "." + element.thumbnail.extension + "' title='" + element.title + "'></td><td>"+ element.title +"</td><td>"+ element.description + "</td></tr>"
+                });
+                
+            }
+        });
+
+    }
+
+    var numero_risultati = 0    
+
+    function carica_altro(){
+        numero_risultati += 20
+        info_comics(getUrlParams(), document.getElementById('selezioneSection').value, numero_risultati)
+    }
+
+</script>
+</html>
+
+
+
