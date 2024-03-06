@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body onload="checkLogin(), scambi_in_spospeso()" class="text-white"> 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>...</ul>-->
+            </div>
+        </div>
+    </nav>    
+    <div class="container-sm ">
+        <div class="row justify-content-md-center">
+
+            <div id="alert" class="alert alert-warning" role="alert" style="display: none;">
+                <!--testo in base all'errore-->
+            </div>
+            <!--DATI UTENTE-->
+            <div class="card text-bg-dark bg-opacity-75" style="max-width: 50em;"> 
+                <div class="card-header">
+                    <h3>Dati personali</h3>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">I miei dati</h5>
+
+                    <table class="table table-dark table-striped table-hover ">
+                        <tbody id="dati_personali" style="overflow-wrap: break-word;">
+                            <!--tr>
+                                <th scope="row">Nome:</th>s
+                                <td>Mark</td>
+                            </tr>-->                             
+                        </tbody>
+                    </table>
+                    
+                    <a href="update.html" class="btn btn-primary">Cambia i dati</a>
+                    <a href="index.html" onclick="elimina_account()" class="btn btn-danger">Elimina account</a>
+                    <a href="index.html" onclick="logout()" class="btn btn-success">Logout</a>
+                </div>
+            </div>
+
+            <!--ALBUM-->
+            <div class="card text-bg-dark bg-opacity-75" style="max-width: 50em;" id="figurine">
+                <div class="card-header">
+                    <h3>Album di figurine</h3>
+                </div>
+                <div class="card-body">
+                    <h5 id="album_vuoto" style="display: none;">Al momento non possiedi alcuna figurina</h5>
+                    <p>Colleziona più figurine acquistando pacchetti (1 pacchetto = 3 figurine). Devi avere crediti sufficienti.</p>
+                    <button type="button" class="btn btn-success" onclick="acquista_pacchetti()" >Acquista pacchetti</button>
+                    <button type="button" class="btn btn-success" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Acquista crediti</button>
+                    <div class="container">
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3" id="album">
+                            <!--Card elenco album-->     
+                        </div>
+                    </div>   
+                </div>
+            </div>
+
+            <!--ACQUISTO CREDITI-->
+            <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1" style="color: black">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Acquisto crediti</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Ogni credito costa 2 euro</p>
+                            <form onsubmit="return acquisto_crediti();">
+                                <div class="mb-3">
+                                    <label for="num_crediti" class="col-form-label">Selezionare quanti crediti comprare (min: 1, max: 5):</label>
+                                    <input type="number" class="form-control" id="num_crediti"  min="1" max="5" value="1" step="1" onchange="prezzo_totale()">
+                                </div>
+                                <div class="mb-3">
+                                    <div id="errori" class="alert alert-warning" role="alert" style="display: none;">
+                                        Errori nei dati di pagamento
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-8">
+                                            <label for="numero_carta" class="col-form-label">Carta di credito</label>
+                                            <input type="number" class="form-control" name="numero_carta" id="numero_carta" placeholder="1234567890" value="1234567890" required>
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="cvv" class="col-form-label">Cvv</label>
+                                            <input type="number" class="form-control"  name="cvv" id="cvv" placeholder="160" value="160" required>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <p id="totale">Totale: 2 euro</p>
+                                <button class="btn btn-primary" type="submit">Acquista</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+    start()
+    
+    function checkLogin(){
+        var t = document.getElementById("dati_personali");
+
+        if(window.localStorage.getItem('sessione') != null){
+            removeAlert()
+            var utente = cerca_utente()             
+                
+            for(j = 0; j < Object.keys(utente).length-2; j++){ //dell'utente loggato itero sui key e values da inserire nella tabella
+                if(Object.keys(utente)[j] == "eroe_fav"){
+                    t.innerHTML += "<tr><th scope='row'>" + Object.keys(utente)[j] + ":</th><td>" + Object.values(utente)[j].nome + "</td></tr>"
+                }
+                else {
+                    t.innerHTML += "<tr><th scope='row'>" + Object.keys(utente)[j] + ":</th><td>" + Object.values(utente)[j] + "</td></tr>"
+                }
+            }
+            carica_album()  
+        } else {
+            addAlert("Devi Registrati o Accedere per visualizzare il profilo utente!")
+        }
+    }
+
+    function carica_album(){
+        var album = document.getElementById('album')
+        album.innerHTML = ""
+        var utente = cerca_utente();
+
+        if(utente['album'].length == 0){
+            document.getElementById('album_vuoto').style.display = "block";
+        } else {
+            for (i = 0; i < utente['album'].length; i++) {
+                var element = utente['album'][i]
+                album.innerHTML += "<div class='col'><div class='card text-bg-dark' h-100><a class='speciale' href='figurina.html?id=" + element.id + "'><div class='contenitore'><img src='" + element.img + "' class='card-img-top posizione_img' title='"+ element.name +"'></div><div class='card-body'><h5 class='card-title ellipsis'>" + element.name + "</h5></a><p><small>ID: "+ element.id  +"</small></p><hr><p>Quantità "+ element.count +"</p></div></div></div>";
+            }
+        }
+    }
+
+    function elimina_account(){
+        if (confirm("Sei sicuro di voler eliminare l'account") == true) {
+            var utenti = JSON.parse(window.localStorage.utenti_marvel);
+            var baratti = JSON.parse(window.localStorage.baratto);
+            var userLoggato = JSON.parse(window.localStorage.getItem('sessione'))
+
+            utenti = utenti.filter(function(user){
+                return user.username != userLoggato
+            })
+            window.localStorage.setItem('utenti_marvel', JSON.stringify(utenti))
+
+            baratti = baratti.filter(function(user){
+                return user.username != userLoggato
+            })
+            window.localStorage.setItem('baratto', JSON.stringify(baratti))
+
+            window.localStorage.removeItem('sessione')
+            window.location.href = "index.html"
+        } 
+    }
+    
+
+    function acquisto_crediti(){
+        var newcrediti = parseInt(document.getElementById('num_crediti').value)
+        var carta = document.getElementById('numero_carta').value
+        var cvv = document.getElementById('cvv').value
+
+        var utenti = JSON.parse(window.localStorage.getItem('utenti_marvel'))
+
+        if((carta.length != 10) || (cvv.length !=3)){
+            document.getElementById('errori').style.display = "block"
+            return false;
+        } else {
+            var utente = cerca_utente()
+            var index = utenti.findIndex(u => u.username == utente.username)
+            utenti[index].crediti = parseInt(utenti[index].crediti) + newcrediti;
+            window.localStorage.setItem('utenti_marvel', JSON.stringify(utenti))
+            window.location.href = "profilo.html"
+        }
+        
+    }
+
+    function prezzo_totale(){
+        var newcrediti = parseInt(document.getElementById('num_crediti').value)
+        var tot = document.getElementById('totale')
+        
+        tot.innerHTML = "Totale: " + newcrediti*2  + " euro"
+    }
+
+    function acquista_pacchetti(){
+        window.location.href = 'acquistoPacchetti.html?crediti=' + cerca_utente().crediti;
+    }
+
+    function scambi_in_spospeso(){
+        var usernameL = cerca_utente().username
+        var utenti_marvel = JSON.parse(localStorage.getItem('utenti_marvel'))
+
+        var baratti = JSON.parse(localStorage.getItem('baratto'))
+        var indexUserB = baratti.findIndex(u => u.username == usernameL)
+        
+        if(baratti[indexUserB] != undefined){
+            baratti[indexUserB].scambi.forEach(element => {
+                if(element.scambiata == true){
+                    console.log("Hai ricevuto la figurina " + element.win.name + " in cambio della tua " + element.offer.name);
+                    alert("Hai ricevuto la figurina " + element.win.name + " in cambio della tua " + element.offer.name);
+
+                    //decremento la figurina donata
+                    console.log("decremento la figurina donata: " + element.offer.name)
+                    var index = utenti_marvel.findIndex(u => u.username == usernameL) //index = index dell'utente loggato
+                    var indexFigurinaDonata = utenti_marvel[index].album.findIndex(f => f.id == element.offer.id)
+                    utenti_marvel[index].album[indexFigurinaDonata].count--
+
+                    //creo figurina vinta oppure incremento la quantità
+                    console.log("creo figurina vinta oppure incremento la figurina vinta: " + element.win.name)
+                    if(presente_in_album(utenti_marvel[index], element.win.id)){
+                        console.log("...incremento la figurina vinta: " + element.win.name)
+                        var indexFigurinaVinta = utenti_marvel[index].album.findIndex(f => f.id == element.win.id)
+                        utenti_marvel[index].album[indexFigurinaVinta].count++
+                    } else {
+                        console.log("...creo la figurina vinta: " + element.win.name)
+                        var newfigurina = {
+                            id: element.win.id,
+                            name: element.win.name,
+                            img: element.win.img,
+                            count: 1
+                        }
+                        utenti_marvel[index].album.push(newfigurina)
+                    }
+
+                    localStorage.setItem('utenti_marvel', JSON.stringify(utenti_marvel))
+
+                    //elimino la proposta di scambio da baratto
+                    console.log("elimino la proposta di scambio da baratto")
+                    baratti[indexUserB].scambi = baratti[indexUserB].scambi.filter(s => s != element)
+                    localStorage.setItem('baratto', JSON.stringify(baratti))
+
+                    carica_album()
+                }
+            });  
+        } else {
+            console.log("Sezione baratto non è ancora stata attivata")
+        }
+    }
+
+    function presente_in_album(utente, id){
+        for (var i = 0; i < utente.album.length; i++) {
+            if(utente.album[i].id == id){
+                return true;
+            }
+        }
+        return false;
+    }
+</script>
+</html>
+
+
+
