@@ -1,0 +1,91 @@
+body {
+    background-image:url('../img/bg_marvel.jpg');/*url('../images/bg.png');*/
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    /*border: solid green 2px;*/
+    margin: auto;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+.card {
+    margin: 10px;
+}
+
+.card-group {
+    margin: 5px;
+}
+
+.card-group > .card {
+    margin: 0px;
+}
+
+.card-group:hover {
+    box-shadow: red 5px 5px 5px;
+}
+
+.imgConBottone .btn {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+  }
+
+.form-dati {
+    /*border: solid white 3px;*/
+    padding-top: 1em;
+    padding: 1em;
+    border-radius: 2%;
+}
+
+.container-sm {
+    padding: 2em;/*15px;*/
+    margin-top: 5px;
+}
+
+.link {
+    color: darkseagreen;
+}
+
+.link:hover {
+    color: white;
+}
+
+.speciale{
+    color: rgb(216, 20, 102);
+    text-decoration: none;
+}
+
+.card a:hover, .speciale:hover{
+    text-decoration: underline;
+}
+
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contenitore{
+    background-color: red;
+    width: 100%;
+    padding-top: 100%; /* 1:1 aspect Ratio*/
+    position: relative; /*per avere .testo dentro*/
+}
+
+.posizione_img { /*se voglio .testo dentro il contenitore*/
+    position: absolute;
+    top:0; /*l'immagine attaccata in alto al precedessore*/
+    /* left:0;
+    bottom: 0;
+    right: 0; */
+    /* max-height: -webkit-fill-available;
+    min-height: -webkit-fill-available; */
+    height: 100%;
+}
+
