@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start()">  <!--TESTO IN BIANCO, modifica per -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>...</ul>-->
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-sm">
+
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto bg-dark  bg-opacity-75 form-dati">
+                <h2>Crea il tuo account</h2>
+
+                <form method="get" onsubmit="return checkDati();">
+                    <div id="alert" class="alert alert-danger" role="alert" style="display:none;">
+                        <!--testo in base all'errore-->
+                    </div>
+                    <div class="mb-3">
+                        <label for="user" class="form-label">Username:</label>
+                        <input type="text" class="form-control" minlength="4" name="user" id="user" placeholder="Mario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="mariorossi@gmail.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dataNascita" class="form-label">Data di nascita:</label>
+                        <input type="date" class="form-control" min="1920-01-01" max="2005-12-31" name="dataNascita" id="dataNascita" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input_eroe" class="form-label">Eroe preferito:</label>
+                        <input type="text" class="form-control" name="input_eroe" id="input_eroe" onkeyup="scelta_eroe()" placeholder="Iron man">
+                        <br>
+                        <select class="form-select" id="selezione_eroe"  aria-label="Selezione del eroe preferito">
+                            <option value="0" selected>Seleziona l'eroe preferito</option>
+                        </select>   
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <div class="row g-3">
+                            <div class="col-10">
+                                <input type="password" class="form-control" minlength="6" maxlength="20" name="password" id="password" placeholder="******" required>
+                                <div id="passwordHelpBlock" class="form-text" style="color: grey;">Deve avere almeno 6 caratteri, maiuscole e numeri</div>
+                            </div>
+                            <div class="col-2">
+                                <a  class="btn btn-success" onclick="showpassword()" class="link"> 
+                                    <img id="img_password" src="img/eye.svg" alt="vedi password">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="1" name="checkPrivacy" id="checkPrivacy">
+                        <label class="form-check-label" for="checkPrivacy">
+                            Accetto i termini e condizioni d'uso di Marvel Studios
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+
+    function checkDati(){
+        removeAlert();
+        //Regular Expression (RegEx) formato: caratteri che non vogliamo prima e dopo la '@'. Return se trova un match, altrimenti false
+        if(!(checkEmail() | checkUser() | checkDataNascita() | checkPrivacy() | checkPassword() | checkEroe() )){
+            registrazione();
+        }
+        return false;
+    }
+
+    function checkEmail(){
+        var email = document.getElementById("email").value;
+        emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i;
+
+        if(!(emailRegex.test(email))){
+            addAlert("Email non valida");
+            return true;
+        }
+        return false;
+    }
+    function checkUser(){
+        var username = document.getElementById('user').value; //senza .value -> input#user.form-control
+        userRegex =  /^\S*$/; //non permette spazi, nè tra parole, nè ad inizio e fine parola, Return true se non ci sono spazi
+
+        if( !(username.length >= 4 && username.length < 30 && (userRegex.test(username))) ){
+            addAlert("Username non valido: non sono permessi spazi bianchi");
+            return true;
+        } 
+        return false;
+    }
+
+    function checkDataNascita(){
+        var dataNascita = new Date(document.getElementById('dataNascita').value);
+        if(dataNascita.getFullYear > 2005 || dataNascita.getFullYear() < 1920){
+            addAlert("Anno di nascita non valido");
+            return true;
+        } 
+        return false;
+    }
+
+    function checkEroe(){ 
+        var eroe_selezionato = document.getElementById("selezione_eroe").value
+        if(eroe_selezionato == "0"){
+            addAlert("Non è stato scelto alcun eroe")
+            return true;
+        }
+        return false;
+    }
+
+    function checkPrivacy(){
+        if(document.getElementById('checkPrivacy').checked == false) {
+            addAlert("Per procedere bisogna accettare i termini");
+            return true;
+        } 
+        return false;
+    }
+
+    function checkPassword(){
+        var pass = document.getElementById('password').value;
+        pwsRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/; //TODO: accettare anche caratteri speciali
+        if(!pwsRegex.test(pass)){
+            addAlert("Password non valida: almeno una maiuscola e un numero.</p><p>Non sono ammessi caratteri speciali");
+            return true;
+        }
+        return false;
+
+    }
+
+    function registrazione(){
+        console.log("dati corretti");
+        var utenti_marvel = window.localStorage.getItem('utenti_marvel');
+        var id_eroe = document.getElementById('selezione_eroe').value;
+
+        getFromMarvel("public/characters/" + id_eroe).then(eroe => {
+            utente = { //oggettoJS
+                username: document.getElementById('user').value,
+                email: document.getElementById('email').value,
+                dataNascita: document.getElementById('dataNascita').value,
+                eroe_fav: {
+                    id: eroe.data.results[0].id,
+                    nome: eroe.data.results[0].name
+                },
+                password: document.getElementById('password').value,
+                crediti: 0,
+                album: [],
+                privacy: document.getElementById('checkPrivacy').checked  === true ? "accettati" : "non accettati"
+            }
+
+            oggettoJSON = JSON.parse(utenti_marvel);
+            if(utente_esistente(oggettoJSON, utente)){
+                addAlert("Username o email già utilizzate");
+            } else {
+                oggettoJSON.push(utente);
+                window.localStorage.setItem('utenti_marvel', JSON.stringify(oggettoJSON)); //ogettoJS converto in una stringa JSON
+                window.localStorage.setItem('sessione', JSON.stringify(utente.username))
+                
+                window.location.href = "profilo.html"
+            }
+        })
+    }
+
+    function utente_esistente(oggettoJSON, utente){
+        for (var i = 0; i < oggettoJSON.length; i++) {
+            if((oggettoJSON[i].username == utente.username) | (oggettoJSON[i].email == utente.email)){
+                return true;
+            }             
+        }
+        return false;
+    }
+
+    function scelta_eroe(){
+        removeAlert() //altrimenti ci sono duplicati di "Non ci sono eroi con quel nome"
+        var input = document.getElementById('input_eroe').value;
+        var select_eroi = document.getElementById('selezione_eroe');
+        select_eroi.innerHTML = '';
+
+        if(input.length > 3){
+            getFromMarvel("public/characters", "nameStartsWith=" + input).then(risultati => {
+                if(risultati.data.results.length == 0){
+                    addAlert("Non ci sono eroi con quel nome")
+                    select_eroi.innerHTML = '<option value="0" selected>Seleziona l\'eroe preferito</option>';
+                }else{
+                    removeAlert();
+                    risultati.data.results.forEach(personaggio =>{
+                        select_eroi.innerHTML += '<option value="' + personaggio.id + '">'+ personaggio.name +'</option>';
+                    })
+                }
+            })  
+        } else {
+            removeAlert()
+            select_eroi.innerHTML = '<option value="0" selected>Seleziona l\'eroe preferito</option>';
+        } 
+    }
+</script>
+</html>
