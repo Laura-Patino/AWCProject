@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start();doppioni();carica_proposte_user(); carica_all_proposte()">  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>....</ul>-->
+            </div>
+        </div>
+    </nav>
+    <!--Proposta scambio-->
+    <div class="container-sm">
+        <div class="row justify-content-md-center">
+            <div class="card text-bg-dark bg-opacity-75" style="max-width: 50em;"> <!--max-width riduce la lunghezza della card che contiene tutto-->
+                <div class="card-header text-center">
+                    <h2>Proponi uno scambio</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row justify-content-md-center text-center">
+                        <div class="col-md-auto">
+                            <form method="get" onsubmit="return addScambio(event)">
+                                <div id="alert" class="alert alert-danger" role="alert" style="display:none;">
+                                    <!--testo in base all'errore-->
+                                </div>
+                                <div class="mb-3">
+                                    <label for="figurina_da_scambiare" class="form-label" id="nameUser">che figurina vorresti scambiare? verrano visualizzati solo i doppioni in tuo possesso</label>
+                                    <select class="form-select" id="figurina_da_scambiare" aria-label="Selezionare figurina da scambiare" required>
+                                        <option value="0">Selezionare figurina da scambiare</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="figurina_ottenibile" class="form-label">Con quale figurina?</label>
+                                    <input type="text" class="form-control" name="figurina_ottenibile" id="figurina_ottenibile" onkeyup="scelta_eroe()" placeholder="Iron man">
+                                    <br>
+                                    <select class="form-select" id="selezione_figurina"  aria-label="Selezione della figurina da ottenere">
+                                        <option value="0" selected>Seleziona l'eroe da ottenere</option>
+                                    </select>   
+                                </div>
+                                <button type="submit" class="btn btn-success">Aggiungi</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md">
+                            <hr>
+                            <h5 class="text-center" id="count_proposte">Le tue proposte</h5>
+                            <div id="check_proposte_utente" class="alert alert-warning" role="alert" style="display:none;">
+                                Non hai ancora proposto degli scambi
+                            </div>
+                            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2" id="proposte_singolo_utente">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+
+            <!--FIGURINE SCAMBIABILI-->
+            <div class="card col-md-auto text-bg-dark bg-opacity-75" style="max-width: 50em;" > 
+                <div class="card-header">
+                    <h2>Scambio figurine</h2>
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <p class="card-text">In questa sezione è possibile scambiare le proprie figurine con quelle disponibili.</p>
+                        <div id="warning" class="alert alert-warning" role="alert" style="display:block;">
+                            Al momento non ci sono proposte di scambio di altri utenti
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md">
+                                <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2" id="proposte">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script src="personaggi.json"></script>
+</body>
+</html>
+<script>
+    var textname = document.getElementById('nameUser');
+    textname.innerHTML = JSON.parse(localStorage.getItem('sessione')) + " " + textname.innerHTML;
+    
+    function scelta_eroe(){
+        removeAlert() //altrimenti ci sono duplicati di "Non ci sono eroi con quel nome"
+        var input = document.getElementById('figurina_ottenibile').value;
+        var select_eroe = document.getElementById('selezione_figurina');
+        select_eroe.innerHTML = '';
+
+        if(input.length > 3){
+            getFromMarvel("public/characters", "nameStartsWith=" + input).then(risultati => {
+                if(risultati.data.results.length == 0){
+                    addAlert("Non ci sono eroi/figurine con quel nome")
+                    select_eroe.innerHTML = '<option value="0" selected>Seleziona l\'eroe da ottenere</option>';
+                }else{
+                    removeAlert();
+                    risultati.data.results.forEach(personaggio =>{
+                        select_eroe.innerHTML += '<option value="' + personaggio.id + '">'+ personaggio.name +'</option>';
+                    })
+                }
+            })  
+        } else {
+            removeAlert()
+            select_eroe.innerHTML = '<option value="0" selected>Seleziona l\'eroe da ottenere</option>';
+        } 
+    }
+
+    function doppioni(){
+        
+        var album = document.getElementById('figurina_da_scambiare')
+        var utente = cerca_utente();
+
+        if(utente['album'].length == 0){
+            addAlert("Al momento non hai figurine")
+        } else {
+            for (i = 0; i < utente['album'].length; i++) {
+                var element = utente['album'][i]
+                if(element.count != 1){
+                    album.innerHTML += '<option value="' + element.id + '">'+ element.name +'</option>';
+                }
+            }
+        }
+    }
+
+    function carica_proposte_user(){
+        var proposte_utente = document.getElementById('proposte_singolo_utente')
+        var baratto = JSON.parse(localStorage.getItem('baratto'))
+        var utente_loggato = JSON.parse(localStorage.getItem('sessione'))
+
+        proposte_utente.innerHTML = ""
+
+        if(indexOf(utente_loggato) == -1){ //check se non esistono baratti a nome dell'utente
+            document.getElementById('check_proposte_utente').style.display = "block";
+            setupJSONObject = {
+                username: utente_loggato,
+                scambi: []
+            }
+            baratto.push(setupJSONObject)
+            localStorage.setItem('baratto', JSON.stringify(baratto))
+        } else {
+            baratto[indexOf(utente_loggato)].scambi.forEach((element) => {
+                proposte_utente.innerHTML += '<div class="col"><div class="card-group "><div class="card text-bg-dark"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.offer.img + '" title="'+ element.offer.name + '"></div></div>' + 
+                                            '<div class="card text-bg-dark imgConBottone"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.win.img + '" title="' + element.win.name + '"></div><button type="button" onclick="elimina_scambio(' + indexOf(utente_loggato) + ', \''+ element.offer.id +'\')" class="btn btn-danger">Elimina</button></div></div></div>';
+
+            });
+            document.getElementById('count_proposte').innerHTML = "Le tue proposte (" + baratto[indexOf(utente_loggato)].scambi.length + ")";
+           
+        }
+
+        baratto.forEach(element => {
+            if(element.scambi.length != 0){
+                document.getElementById('warning').style.display = "none";
+            }
+        });
+
+    }
+
+    function carica_all_proposte(){
+        baratto = JSON.parse(localStorage.getItem('baratto'))
+        proposte = document.getElementById('proposte')
+        proposte.innerHTML = ""
+
+        user = cerca_utente()
+
+        baratto.forEach(utente => {
+            /*if(utente.username == JSON.parse(localStorage.getItem('sessione'))){ //scambi del utente loggato 
+                utente.scambi.forEach((element, index) => {
+                    proposte.innerHTML += '<div class="col"><p class="text-center">'+ utente.username +'</p><div class="card-group "><div class="card text-bg-dark"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.offer.img + '" title="'+ element.offer.name + '"></div></div>' +
+                                            '<div class="card text-bg-dark imgConBottone"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.win.img + '" title="' + element.win.name + '"></div><button type="button" onclick="" class="btn btn-secondary" disabled>Non disponibile</button></div></div></div>';
+                }); } else {*/
+            if(utente.username != JSON.parse(localStorage.getItem('sessione'))) {
+                utente.scambi.forEach((element, index) => {
+                    if(!element.scambiata){
+                        if(presente_in_album(user, element.offer.id) || !presente_in_album(user, element.win.id) || quantita(user,element.win.id)){ //se figurina da ottenere (offer) è già presente oppure se la figurina da cedere(win) non è presente nell'album del utente loggato
+                            proposte.innerHTML += '<div class="col"><p class="text-center">'+ utente.username +'</p><div class="card-group "><div class="card text-bg-dark"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.offer.img + '" title="'+ element.offer.name + '"></div></div>' +
+                                                '<div class="card text-bg-dark imgConBottone"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.win.img + '" title="' + element.win.name + '"></div><button type="button" onclick="non_disponibile(\''+ element.offer.id +'\', \'' + element.offer.name + '\', \'' + element.win.id + '\', \'' + element.win.name + '\')" class="btn btn-danger">Accetta</button></div></div></div>';
+                        } else {
+                            proposte.innerHTML += '<div class="col"><p class="text-center">'+ utente.username +'</p><div class="card-group "><div class="card text-bg-dark"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.offer.img + '" title="'+ element.offer.name + '"></div></div>' +
+                                                '<div class="card text-bg-dark imgConBottone"><div class="contenitore"><img class="card-img-top posizione_img" src="' + element.win.img + '" title="' + element.win.name + '"></div><button type="button" onclick="accetta_scambio('+ index +',\'' + utente.username + '\')" class="btn btn-success">Accetta</button></div></div></div>';
+                        }
+                    }
+                    
+                });
+            }
+        });
+        if(document.getElementById('proposte').childElementCount == 0){
+            document.getElementById('warning').style.display = "block";
+            document.getElementById('warning').innerHTML = "Al momento non ci sono proposte di scambio"
+        } 
+    }
+
+    function quantita(user, id){
+        if(presente_in_album(user, id)){
+            var index = user.album.findIndex(d => d.id == id)
+            if(user.album[index].count == 1){
+                return true;
+            }
+        }
+    }
+
+    function indexOf(utente){
+        var baratto = JSON.parse(localStorage.getItem('baratto'))
+        for (var index = 0; index < baratto.length; index++) {
+            if(baratto[index].username == utente){
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    function addScambio(){
+        removeAlert()
+        event.preventDefault()
+        var offer = document.getElementById('figurina_da_scambiare').value
+        var win = document.getElementById('selezione_figurina').value
+
+        var utente = cerca_utente()
+        var baratto = JSON.parse(localStorage.getItem('baratto'))
+
+        if(offer == 0 | win == 0){
+            addAlert("Manca compilare qualche campo")
+        } else if(offer == win){
+            addAlert("Non puoi scambiare la stessa figurina")
+        } else {
+            var proposta = {}
+            getFromMarvel("public/characters/" + offer).then(risultati => {
+                var personaggio = risultati.data.results[0];
+        
+                proposta = {
+                        offer: {
+                            id: personaggio.id,
+                            name: personaggio.name,
+                            img: personaggio.thumbnail.path + "." + personaggio.thumbnail.extension
+                        },
+                        win: { },
+                        scambiata: false
+                }
+
+                getFromMarvel("public/characters/" + win).then(res => {
+                    var personaggio2 = res.data.results[0]
+                    dati_win = {
+                        id: personaggio2.id,
+                        name: personaggio2.name,
+                        img: personaggio2.thumbnail.path + "." + personaggio2.thumbnail.extension
+                    }
+
+                    proposta['win'] = dati_win;
+
+                    if(scambio_esiste(baratto[indexOf(utente.username)].scambi, proposta)){//check se figurina è già stata usata per un baratto
+                        addAlert("Figurina <b>" + personaggio.name + "</b> già usata per il baratto")
+                        return false;
+                    } else if(presente_in_album(utente, dati_win.id)){ //check se figurina da ottenere è già presente nell'album
+                        addAlert("Figurina <b>" + personaggio2.name + "</b> già presente nell'album")
+                    } else {
+                        baratto[indexOf(utente.username)].scambi.push(proposta)
+                        localStorage.setItem('baratto', JSON.stringify(baratto))
+                        window.location.href = "scambio.html"
+                    }
+                    
+                })
+            })
+        }
+
+    }
+
+    function presente_in_album(utente, id){
+    for (var i = 0; i < utente.album.length; i++) {
+        if(utente.album[i].id == id){
+            return true;
+        }
+    }
+    return false;
+}
+    function scambio_esiste(oggettoJSON, figurina){
+        for (var i = 0; i < oggettoJSON.length; i++) {
+            if(oggettoJSON[i].offer.id == figurina.offer.id) { 
+                return true;
+            }             
+        }
+        return false;
+    }
+
+    function elimina_scambio(indexUserLog, id_offer){
+        baratti = JSON.parse(localStorage.getItem('baratto'))
+        baratti[indexUserLog].scambi = baratti[indexUserLog].scambi.filter(function(element){
+                return element.offer.id != id_offer
+            })
+        localStorage.setItem('baratto', JSON.stringify(baratti))
+        carica_proposte_user();
+    }
+    
+    function accetta_scambio(index, username_baratto){
+        baratti = JSON.parse(localStorage.getItem('baratto'))
+        var indexUserScambio = indexOf(username_baratto)
+
+        if(confirm("Sei sicuro di voler cedere la figurina " + baratti[indexUserScambio].scambi[index].win.name + " per ottenere " + baratti[indexUserScambio].scambi[index].offer.name + "?") == true){// && baratti[indexUserScambio].scambi[index].scambiata == false){
+            baratti[indexUserScambio].scambi[index].scambiata = true
+            localStorage.setItem('baratto', JSON.stringify(baratti));
+
+            var utenti_marvel = JSON.parse(localStorage.getItem('utenti_marvel'))
+            var user = cerca_utente()
+            
+            newfigura = {
+                id: baratti[indexUserScambio].scambi[index].offer.id,
+                name: baratti[indexUserScambio].scambi[index].offer.name,
+                img: baratti[indexUserScambio].scambi[index].offer.img,
+                count: 1
+            }
+
+            var indexUserLog = utenti_marvel.findIndex(u => u.username == user.username) 
+            utenti_marvel[indexUserLog].album.push((newfigura)); //aggiungo figurina al mio album
+
+            //decremento di uno la quantità della figurina nel mio album che sto cedendo
+            var doppione = utenti_marvel[indexUserLog].album.findIndex(d => d.id == baratti[indexUserScambio].scambi[index].win.id)
+            utenti_marvel[indexUserLog].album[doppione].count--;
+
+            console.log("acettazione scambio: "+ utenti_marvel[indexUserLog].album[doppione].name + " count: " + utenti_marvel[indexUserLog].album[doppione].count)
+            //if win in album ha raggiunto la quantità 1, elimino la figurina dalle proposte di scambio
+            if(utenti_marvel[indexUserLog].album[doppione].count == 1){
+                console.log("a: elimino scambio: " + baratti[indexUserScambio].scambi[index].win.id)
+                elimina_scambio(indexUserLog, baratti[indexUserScambio].scambi[index].win.id)
+            }
+            carica_proposte_user();
+            
+            localStorage.setItem('utenti_marvel', JSON.stringify(utenti_marvel))
+
+            document.getElementById('warning').classList.replace('alert-warning', 'alert-success');
+            document.getElementById('warning').innerHTML = "Scambio accettato! " + baratti[indexUserScambio].scambi[index].offer.name + " è stata aggiunta al tuo album"
+            document.getElementById('warning').style.display = "block";
+
+            carica_all_proposte();
+        } 
+    }
+
+    function non_disponibile(id_offer, name_offer, id_win, name_win){
+        if(presente_in_album(cerca_utente(), id_offer)){
+            document.getElementById('warning').innerHTML = name_offer + " è già presente nel tuo album!!"
+        } else if (!presente_in_album(cerca_utente(), id_win)){
+            document.getElementById('warning').innerHTML = "Scambio non disponibile! " + name_win + " non c'è nel tuo album"
+        } else {
+            document.getElementById('warning').innerHTML = name_win + " è presente nel tuo album, ma non è un doppione!"
+        }
+
+        document.getElementById('warning').classList.replace('alert-warning', 'alert-danger');
+        document.getElementById('warning').style.display = "block";
+        document.getElementById('warning').scrollIntoView();
+
+    }
+</script>
+</html>
+
+
+
