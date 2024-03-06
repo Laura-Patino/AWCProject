@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start(); carica_figurine()">  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>....</ul>-->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-sm">
+        <div class="card text-center col-md-auto text-bg-dark bg-opacity-75" > 
+            <div class="card-body">
+                <h5 class="card-title">Benvenuto a AFSE</h5>
+                <p class="card-text">In questo sito potrai collezionare figurine elettroniche dei Super Eroi (Marvel)</p>
+                <br>
+                <div id="loggato" style="display: block;">
+                    <a href="registrazione.html" type="button" class="btn btn-success">Registrati</a>
+                    <a href="accedi.html" type="button" class="btn btn-success">Accedi</a>  
+                </div>
+                
+            </div>
+        </div>
+        <br>
+        <div class="card text-bg-dark bg-opacity-75" > <!--add col-md-auto per ridimensionamento della card-->
+            <div class="card-header">
+                <h2>Figurine disponibili</h2>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3" id="album">
+                        <!--Card elenco album-->
+                        
+                    </div>
+                    <div class="d-grid gap-2 mx-auto" id="carica_altro">
+                        <button onclick="carica_figurine()" type="button" class="btn btn-success mx-auto">Carica altro</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script src="personaggi.json"></script>
+    <script src="utenti_marvel.json"></script>
+    <script src="baratto.json"></script>
+
+</body>
+</html>
+<script>
+    if(localStorage.getItem('personaggi') == null)
+        window.localStorage.setItem('personaggi', JSON.stringify(personaggi))
+
+    if(localStorage.getItem('utenti_marvel') == null)
+        window.localStorage.setItem('utenti_marvel', JSON.stringify(utenti_marvel))
+
+    if(localStorage.getItem('baratto') == null)
+        window.localStorage.setItem('baratto', JSON.stringify(baratto))
+
+    if(localStorage.getItem('sessione') != null){
+        document.getElementById('loggato').style.display = 'none'
+    }
+
+    var offset = 0;
+
+    function carica_figurine(){
+        var figurine = document.getElementById('album')
+        
+        getFromMarvel("public/characters", "offset=" + offset).then(risultati =>{
+            var items = risultati.data.results
+            for (var key in items) { //per ogni pagina key = [0, 19]
+                var element = items[key];
+                //mostrare: nome, immagine e descrizione
+                if(element.description == "")
+                    element.description = "Questo personaggio al momento non ha descrizione"
+                figurine.innerHTML += "<div class='col'><div class='card text-bg-dark' h-100><div class='contenitore'><img src='" + element.thumbnail.path + "." + element.thumbnail.extension + "' class='card-img-top posizione_img' title='"+ element.name +"'></div><div class='card-body'><h5 class='card-title ellipsis'>" + element.name + "</h5>"+
+                    "<p class='card-text'  id='descrizione_" + element.id + "' hidden>" + element.description + "</p><a class='speciale' onclick='show_info_figurina("+ element.id +")' id='info_"+ element.id +"'>+ informazioni</a></div></div></div>";
+            } 
+            offset+= 20
+            if(risultati.data.results.length == 0)
+                document.getElementById('carica_altro').classList.add('visually-hidden')
+        })
+    }   
+</script>
+</html>
+
