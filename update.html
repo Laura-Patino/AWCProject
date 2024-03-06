@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start(); carica_dati()">  <!--TESTO IN BIANCO, modifica per -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>...</ul>-->
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-sm">
+
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto bg-dark  bg-opacity-75 form-dati">
+                <h2>Crea il tuo account</h2>
+
+                <form method="get" onsubmit="return checkDati();">
+                    <div id="alert" class="alert alert-danger" role="alert" style="display:none;">
+                        <!--testo in base all'errore-->
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username (non modificabile)</label>
+                        <input type="text" class="form-control" minlength="4" name="username" id="username" disabled readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email (non modificabile)</label>
+                        <input type="email" class="form-control" name="email" id="email" disabled readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dataNascita" class="form-label">Data di nascita:</label>
+                        <input type="date" class="form-control" min="1920-01-01" max="2005-12-31" name="dataNascita" id="dataNascita" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="input_eroe" class="form-label">Eroe preferito (opzionale):</label>
+                        <input type="text" class="form-control" name="input_eroe" id="input_eroe" onkeyup="scelta_eroe()" placeholder="Iron man">
+                        <br>
+                        <select class="form-select" id="eroe_fav"  aria-label="Selezione del eroe preferito">
+                            <option value="0">Scegli l'eroe preferito</option>
+                        </select>   
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Vecchia Password</label>
+                        <div class="row g-3">
+                            <div class="col-10">
+                                <input type="password" class="form-control" minlength="6" maxlength="20" name="password" id="password" placeholder="******" required>
+                            </div>
+                            <div class="col-1">
+                                <a  class="btn btn-success" onclick="showpassword()" class="link"> 
+                                    <img id="img_password" src="img/eye.svg" alt="vedi password">
+                                </a>
+                            </div>
+                        </div>
+                        <label for="new_password" class="form-label">Nuova password: Almeno 6 caratteri, maiuscole e numeri</label>
+                        <input type="password" class="form-control" minlength="6" maxlength="20" name="password" id="new_password" placeholder="******" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+    function carica_dati(){
+        var utente = cerca_utente()
+        var select_eroe = document.getElementById('eroe_fav');
+        select_eroe.innerHTML = ''
+
+        for (var i = 0; i < Object.keys(utente).length-4; i++) {
+            if(Object.keys(utente)[i] == "eroe_fav"){
+                select_eroe.innerHTML = '<option value="' + Object.values(utente)[i].id + '">'+  Object.values(utente)[i].nome +'</option>'; 
+            } else {
+                document.getElementById(Object.keys(utente)[i]).value = Object.values(utente)[i]
+            }
+        }   
+    }
+
+    function checkDati(){
+        var utente = cerca_utente()
+        removeAlert();
+        //Regular Expression (RegEx) formato: Return se trova un match, altrimenti false
+        if(!(checkDataNascita() | checkPassword(utente) | checkEroe() )){
+            update_dati(utente);
+        } 
+        return false;
+    }
+
+    function update_dati(utente_loggato){
+        console.log("in aggiornamento..")
+        var id_eroe = document.getElementById('eroe_fav').value;
+        var utenti_marvel = JSON.parse(localStorage.getItem('utenti_marvel'))
+
+        var index = utenti_marvel.findIndex(u => u.username == utente_loggato.username)
+
+        getFromMarvel("public/characters/" + id_eroe).then(eroe => {
+            utenti_marvel[index].dataNascita = document.getElementById('dataNascita').value
+            utenti_marvel[index].eroe_fav.id =  eroe.data.results[0].id
+            utenti_marvel[index].eroe_fav.nome =  eroe.data.results[0].name
+            utenti_marvel[index].password =  document.getElementById('new_password').value
+
+            window.localStorage.setItem('utenti_marvel', JSON.stringify(utenti_marvel)); //oggettoJS converto in una stringa JSON
+            window.location.href = "profilo.html"
+            
+        })
+    }
+
+    function checkDataNascita(){
+        var dataNascita = new Date(document.getElementById('dataNascita').value);
+        if(dataNascita.getFullYear > 2005 || dataNascita.getFullYear() < 1920){
+            addAlert("Anno di nascita non valido");
+            return true;
+        } 
+        return false;
+    }
+
+
+    function checkPassword(utente_loggato){
+        var vecchia_pass = document.getElementById('password').value;
+        var nuova_pass = document.getElementById('new_password').value;
+        var result = false;
+
+        pwsRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/; 
+        
+        if(! (pwsRegex.test(vecchia_pass) && (pwsRegex.test(nuova_pass)) ) ){
+            addAlert("Password non valida: almeno una maiuscola e un numero.");
+            result = true;
+        }
+        if(vecchia_pass != utente_loggato.password){
+            addAlert("Password errata")
+            result = true;
+        }
+        return result;
+    }
+
+    function checkEroe(){ 
+        var eroe_selezionato = document.getElementById("eroe_fav").value
+        if(eroe_selezionato == "0"){
+            addAlert("Non è stato scelto alcun eroe")
+            return true;
+        }
+        return false;
+    }
+
+    function scelta_eroe(){
+        removeAlert() //altrimenti ci sono duplicati di "Non ci sono eroi con quel nome"
+        var input = document.getElementById('input_eroe').value;
+        var select_eroi = document.getElementById('eroe_fav');
+        select_eroi.innerHTML = '';
+
+        if(input.length > 3){
+            getFromMarvel("public/characters", "nameStartsWith=" + input).then(risultati => {
+                if(risultati.data.results.length == 0){
+                    addAlert("Non ci sono eroi con quel nome")
+                    select_eroi.innerHTML = '<option value="0" selected>Seleziona l\'eroe preferito</option>';
+                }else{
+                    removeAlert();
+                    risultati.data.results.forEach(personaggio =>{
+                        select_eroi.innerHTML += '<option value="' + personaggio.id + '">'+ personaggio.name +'</option>';
+                    })
+                }
+            })  
+        } else {
+            removeAlert()
+            select_eroi.innerHTML = '<option value="0" selected>Seleziona l\'eroe preferito</option>';
+        } 
+    }
+</script>
+</html>
