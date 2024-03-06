@@ -11,6 +11,7 @@ Tre macro-scenari principali:
 
 # Acquisizione e gestione dei dati
 Le informazioni riguardanti i super eroi sono stati acquisiti tramite le API REST del portale <link> https://developer.marvel.com/docs </link>
+
 I dati degli utenti sono stati provvisoriamente salvati in un web storage, come richiesto nelle specifiche del progetto, e resi disponibili in formato JSON.
 
 Per questo progetto sono stati usati i seguenti linguaggi: HTML5, CSS3, Javascript, JSON, e l'utilizzo del framework Bootstrap
