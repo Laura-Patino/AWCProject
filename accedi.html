@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start()">  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>...</ul>-->
+            </div>
+        </div>
+    </nav>
+    <br>
+    <div class="container-sm">
+        
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto bg-dark bg-opacity-75 form-dati">
+                <h2>Accedi al tuo account</h2>
+
+                <form method="get" onsubmit="return checkLogIn(event)">
+                    <div id="alert" class="alert alert-danger" role="alert" style="display:none;">
+                        <!--testo in base all'errore-->
+                    </div>
+                    <div class="mb-3">
+                        <label for="user" class="form-label">Username:</label>
+                        <input type="text" class="form-control" minlength="4" name="user" id="user" placeholder="Mario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="row g-3">
+                            <div class="col-10">
+                                <input type="password" class="form-control" minlength="5" maxlength="20" name="password" id="password" placeholder="******" required>
+                            </div>
+                            <div class="col-1">
+                                <a  class="btn btn-success" onclick="showpassword()" class="link"> 
+                                    <img id="img_password" src="img/eye.svg" alt="">
+                                </a>
+                            </div>  
+                        </div>  
+                    </div>
+                    <p>Non sei ancora registrato? <a href="registrazione.html" class="link">Registrati!</a></p>
+                    <button type="submit" class="btn btn-success">Submit</button>
+
+                </form>
+                <br>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+<script>
+    function checkLogIn(){        
+        event.preventDefault()
+        removeAlert()
+
+        utente = {
+            username: document.getElementById('user').value,
+            password: document.getElementById('password').value
+        }
+
+        var utenti = JSON.parse(window.localStorage.getItem('utenti_marvel'));
+
+        if(utenti.find(u=> u.username == utente.username) == null){
+            addAlert("Utente non registrato")
+        } else if(cercaUser(utenti) == null) {
+            addAlert("Password errata")
+        } else {
+            foundUser = cercaUser(utenti);
+            window.localStorage.setItem('sessione', JSON.stringify(foundUser.username));
+            window.location.href = "profilo.html"
+        }
+    }
+
+    function cercaUser(utenti){
+        return utenti.find(u=> u.username == utente.username && u.password == utente.password);
+    }
+
+</script>
+</html>
+
+
+
