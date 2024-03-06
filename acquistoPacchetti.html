@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="img/marvel_icon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Prova Marvel</title>
+</head>
+<body class="text-white" onload="start(); return saldocrediti();">  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/marvel_icon.webp" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
+                <b>Marvel</b>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <!--<ul>....</ul>-->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-sm">
+        <div class="card text-bg-dark bg-opacity-75" >
+            <div class="card-header">
+                <h2>Acquisto pacchetti</h2>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <div id="alert" class="alert alert-danger" role="alert" style="display:none;">
+                        <!--testo in base all'errore-->
+                    </div>
+                    <p class="card-text">In questa sezione puoi acquistare pacchetti per ottenere figurine. Ogni pacchetto scala 1 credito.</p>
+                    <p class="card-text" id="crediti"></p>
+                    <div class="d-grid gap-2 mx-auto" id="carica_altro">
+                        <button onclick="figurine_vinte()" type="button" class="btn btn-success mx-auto">Acquista pacchetto</button>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3" id="album">
+                        <!--Card elenco album-->                 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script src="personaggi.json"></script>
+</body>
+</html>
+<script>
+    var utente = cerca_utente()
+
+    function saldocrediti(){
+        document.getElementById('crediti').innerHTML = "Al momento possiedi <b>" + utente.crediti + "</b> crediti"
+        return utente.crediti
+    }
+
+
+    function figurine_vinte(){
+        var personaggi = JSON.parse(localStorage.getItem('personaggi')) //1563
+        var figurine = document.getElementById('album')
+        figurine.innerHTML = ""
+
+        var utenti_marvel = JSON.parse(localStorage.getItem('utenti_marvel'))
+
+        var index = utenti_marvel.findIndex(u => u.username == utente.username)
+
+        if(utenti_marvel[index].crediti  <= 0){
+            addAlert("Non hai abbastanza crediti")
+        } else {
+            utenti_marvel[index].crediti -= 1
+
+            for (var i = 0; i < 5; i++){
+                var j = getRandomInt(0, 20)  //TODO: cambiare con personaggi.length per avere la possibilità di trovare tutti i personaggi
+
+                getFromMarvel("public/characters/" + personaggi[j].id).then(risultati =>{
+                    var element = risultati.data.results[0]
+
+                    if(element.description == "")
+                        element.description = "Questo personaggio al momento non ha descrizione."
+
+                    figurine.innerHTML += "<div class='col'><div class='card text-bg-dark' h-100><div class='contenitore'><img src='" + element.thumbnail.path + "." + element.thumbnail.extension + "' class='card-img-top posizione_img' title='"+ element.name +"'></div><div class='card-body'><h5 class='card-title ellipsis'>" + element.name + "</h5>"+
+                        "<div id='descrizione_" + element.id + "' hidden><p>ID: "+ element.id  +"</p><hr><p class='card-text'>Descrizione: " + element.description + "</p><hr><p>Appare in: </p><ul><li>" + element.series.available + " series</li><li>"+ element.events.available +" events</li><li>"+ element.comics.available +" comics</li></ul></div>" +
+                        "<a class='speciale' onclick='show_info_figurina("+ element.id +")' id='info_"+ element.id +"'>+ informazioni</a></div></div></div>";
+                    
+                    var figurina = {
+                        id: element.id,
+                        name: element.name,
+                        img: element.thumbnail.path + "." + element.thumbnail.extension,
+                        count: 1
+                    }
+
+                    if(figurina_esistente(utenti_marvel[index].album, figurina)){
+                        var doppione = utenti_marvel[index].album.findIndex(d => d.id == element.id)
+                        utenti_marvel[index].album[doppione].count++;
+                    }else {
+                        utenti_marvel[index].album.push(figurina)
+                    }
+                    localStorage.setItem("utenti_marvel", JSON.stringify(utenti_marvel))                
+                })
+            } 
+            document.getElementById('crediti').innerHTML = "Al momento possiedi <b>" + utenti_marvel[index].crediti + "</b> crediti"
+        }
+    }  
+
+    function figurina_esistente(oggettoJSON, figurina){
+        for (var i = 0; i < oggettoJSON.length; i++) {
+            if(oggettoJSON[i].id == figurina.id){
+                return true;
+            }             
+        }
+        return false;
+    }
+    
+</script>
+</html>
+
+
+
